@@ -1,12 +1,12 @@
-import { auth, signOut } from "@/lib/auth"
+import { auth } from "@/lib/auth"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { LogoutMenuItem } from "@/components/logout-menu-item"
 import Link from "next/link"
 
 export async function Navbar() {
@@ -41,19 +41,7 @@ export async function Navbar() {
               {user?.email}
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <form
-                action={async () => {
-                  "use server"
-                  await signOut({ redirectTo: "/login" })
-                }}
-                className="w-full"
-              >
-                <button type="submit" className="w-full text-left">
-                  로그아웃
-                </button>
-              </form>
-            </DropdownMenuItem>
+            <LogoutMenuItem />
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
