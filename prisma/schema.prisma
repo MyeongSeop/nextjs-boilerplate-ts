@@ -14,6 +14,7 @@ enum Role {
 
 model User {
   id            String    @id @default(cuid())
+  username      String?   @unique
   name          String?
   email         String    @unique
   emailVerified DateTime?
@@ -25,6 +26,8 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  posts    Post[]
+  comments Comment[]
 }
 
 model Account {
@@ -61,4 +64,47 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Board {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  posts Post[]
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  boardId   String
+  authorId  String
+  title     String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  board    Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments Comment[]
+
+  @@index([boardId, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+  @@index([authorId, createdAt])
 }

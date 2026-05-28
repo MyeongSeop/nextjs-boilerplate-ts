@@ -13,8 +13,14 @@ const credentialsProvider = Credentials({
     const parsed = loginSchema.safeParse(credentials)
     if (!parsed.success) return null
 
+    const identifier = parsed.data.identifier
+    const where =
+      identifier === "admin"
+        ? { username: "admin" as const }
+        : { email: identifier }
+
     const user = await db.user.findUnique({
-      where: { email: parsed.data.email },
+      where,
     })
     if (!user || !user.password) return null
 

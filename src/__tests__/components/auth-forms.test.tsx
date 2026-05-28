@@ -20,21 +20,19 @@ import { LoginForm } from "@/components/auth/login-form"
 import { RegisterForm } from "@/components/auth/register-form"
 
 describe("auth forms", () => {
-  test("login form renders Korean labels", () => {
+  test("login form renders current labels", () => {
     render(<LoginForm />)
 
     expect(screen.getAllByText("로그인")).toHaveLength(2)
-    expect(screen.getByLabelText("이메일")).toBeInTheDocument()
+    expect(screen.getByLabelText("이메일 또는 관리자 아이디")).toBeInTheDocument()
     expect(screen.getByLabelText("비밀번호")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "로그인" })).toBeInTheDocument()
-    expect(
-      screen.getByRole("button", { name: "Google로 계속하기" }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Google로 계속하기" })).toBeInTheDocument()
     expect(screen.getByText("또는")).toBeInTheDocument()
     expect(screen.getByText("회원가입")).toBeInTheDocument()
   })
 
-  test("register form renders Korean labels", () => {
+  test("register form renders current labels", () => {
     render(<RegisterForm />)
 
     expect(screen.getAllByText("회원가입")).toHaveLength(2)

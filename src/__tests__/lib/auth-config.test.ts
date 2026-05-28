@@ -27,6 +27,13 @@ vi.mock("next-auth/providers/google", () => ({
   default: mocks.googleProvider,
 }))
 
+vi.mock("bcryptjs", () => ({
+  default: {
+    compare: vi.fn(),
+    hash: vi.fn(),
+  },
+}))
+
 vi.mock("@/lib/db", () => ({
   db: {
     user: {
@@ -41,7 +48,23 @@ vi.mock("@/lib/validations/auth", () => ({
   },
 }))
 
+import bcrypt from "bcryptjs"
+import { db } from "@/lib/db"
+import { loginSchema } from "@/lib/validations/auth"
+
 describe("Auth configuration", () => {
+  type ProviderConfig = {
+    providers: Array<{
+      id: string
+      options?: {
+        authorize?: (credentials: {
+          identifier: string
+          password: string
+        }) => Promise<unknown>
+      }
+    }>
+  }
+
   beforeEach(() => {
     vi.resetModules()
     vi.clearAllMocks()
@@ -52,9 +75,11 @@ describe("Auth configuration", () => {
   test("omits Google provider when OAuth env vars are missing", async () => {
     await import("@/lib/auth")
 
-    const config = mocks.nextAuth.mock.calls[0][0]
-    expect(config.providers).toHaveLength(1)
-    expect(config.providers[0]).toMatchObject({ id: "credentials" })
+    const calls = mocks.nextAuth.mock.calls as unknown as [ProviderConfig][]
+    const config = calls[0]?.[0]
+    expect(config).toBeDefined()
+    expect(config?.providers).toHaveLength(1)
+    expect(config?.providers[0]).toMatchObject({ id: "credentials" })
     expect(mocks.googleProvider).not.toHaveBeenCalled()
   })
 
@@ -64,13 +89,50 @@ describe("Auth configuration", () => {
 
     await import("@/lib/auth")
 
-    const config = mocks.nextAuth.mock.calls[0][0]
-    expect(config.providers).toHaveLength(2)
-    expect(config.providers[0]).toMatchObject({ id: "google" })
-    expect(config.providers[1]).toMatchObject({ id: "credentials" })
+    const calls = mocks.nextAuth.mock.calls as unknown as [ProviderConfig][]
+    const config = calls[0]?.[0]
+    expect(config).toBeDefined()
+    expect(config?.providers).toHaveLength(2)
+    expect(config?.providers[0]).toMatchObject({ id: "google" })
+    expect(config?.providers[1]).toMatchObject({ id: "credentials" })
     expect(mocks.googleProvider).toHaveBeenCalledWith({
       clientId: "google-client-id",
       clientSecret: "google-client-secret",
+    })
+  })
+
+  test("authorizes the admin account by username when normalized identifier is admin", async () => {
+    vi.mocked(loginSchema.safeParse).mockReturnValue({
+      success: true,
+      data: { identifier: "admin", password: "admin1" },
+    } as never)
+    vi.mocked(db.user.findUnique).mockResolvedValue({
+      id: "admin-id",
+      username: "admin",
+      email: "admin@example.com",
+      password: "hashed-password",
+      role: "ADMIN",
+    } as never)
+    vi.mocked(bcrypt.compare).mockResolvedValue(true as never)
+
+    await import("@/lib/auth")
+
+    const calls = mocks.nextAuth.mock.calls as unknown as [ProviderConfig][]
+    const config = calls.at(-1)?.[0]
+    expect(config).toBeDefined()
+    const provider = config?.providers.find((entry) => entry.id === "credentials")
+    expect(provider).toBeDefined()
+    const user = await provider?.options?.authorize?.({ identifier: " Admin ", password: "admin1" })
+
+    expect(db.user.findUnique).toHaveBeenCalledWith({
+      where: { username: "admin" },
+    })
+    expect(db.user.findUnique).not.toHaveBeenCalledWith({
+      where: { email: "admin" },
+    })
+    expect(user).toMatchObject({
+      email: "admin@example.com",
+      role: "ADMIN",
     })
   })
 })

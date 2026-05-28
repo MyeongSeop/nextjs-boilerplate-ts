@@ -1,19 +1,28 @@
-import { describe, test, expect } from "vitest"
+import { describe, expect, test } from "vitest"
 import { loginSchema, registerSchema } from "@/lib/validations/auth"
 
 describe("loginSchema", () => {
   test("valid credentials pass", () => {
-    const result = loginSchema.safeParse({ email: "user@example.com", password: "password123" })
+    const result = loginSchema.safeParse({
+      identifier: "user@example.com",
+      password: "password123",
+    })
     expect(result.success).toBe(true)
   })
 
   test("invalid email fails", () => {
-    const result = loginSchema.safeParse({ email: "not-an-email", password: "password123" })
+    const result = loginSchema.safeParse({
+      identifier: "not-an-email",
+      password: "password123",
+    })
     expect(result.success).toBe(false)
   })
 
   test("empty password fails", () => {
-    const result = loginSchema.safeParse({ email: "user@example.com", password: "" })
+    const result = loginSchema.safeParse({
+      identifier: "user@example.com",
+      password: "",
+    })
     expect(result.success).toBe(false)
   })
 })
@@ -37,7 +46,11 @@ describe("registerSchema", () => {
   })
 
   test("password under 8 chars fails", () => {
-    const result = registerSchema.safeParse({ ...valid, password: "short", confirmPassword: "short" })
+    const result = registerSchema.safeParse({
+      ...valid,
+      password: "short",
+      confirmPassword: "short",
+    })
     expect(result.success).toBe(false)
   })
 
