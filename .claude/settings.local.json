@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(superpowers:writing-plans)",
+      "Skill(superpowers:subagent-driven-development)",
+      "Read(//c/Users/lim09/OneDrive/바탕 화면/코딩/samsung_multiagent/**)",
+      "Bash(Copy-Item \"nextjs-boilerplate\\\\CLAUDE.md\" \"CLAUDE.md.bak\")",
+      "Bash(Remove-Item \"nextjs-boilerplate\\\\CLAUDE.md\")",
+      "Bash(npx --yes create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --yes)"
+    ]
+  }
+}
