@@ -99,9 +99,9 @@ describe("login()", () => {
     vi.clearAllMocks()
   })
 
-  test("passes identifier to signIn during login", async () => {
+  test("passes normalized identifier to signIn during login", async () => {
     const fd = new FormData()
-    fd.append("identifier", "admin")
+    fd.append("identifier", " Admin ")
     fd.append("password", "admin1")
 
     await login(fd)

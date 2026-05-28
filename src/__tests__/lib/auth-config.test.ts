@@ -85,7 +85,7 @@ describe("Auth configuration", () => {
     })
   })
 
-  test("authorizes the admin account by username when identifier is admin", async () => {
+  test("authorizes the admin account by username when normalized identifier is admin", async () => {
     vi.mocked(loginSchema.safeParse).mockReturnValue({
       success: true,
       data: { identifier: "admin", password: "admin1" },
@@ -103,7 +103,7 @@ describe("Auth configuration", () => {
 
     const config = mocks.nextAuth.mock.calls.at(-1)?.[0]
     const provider = config.providers.find((entry: { id: string }) => entry.id === "credentials")
-    const user = await provider.options.authorize({ identifier: "admin", password: "admin1" })
+    const user = await provider.options.authorize({ identifier: " Admin ", password: "admin1" })
 
     expect(db.user.findUnique).toHaveBeenCalledWith({
       where: { username: "admin" },

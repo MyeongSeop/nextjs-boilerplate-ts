@@ -2,21 +2,22 @@
 
 import { useState } from "react"
 import { useFormStatus } from "react-dom"
-import { login } from "@/actions/auth"
+import Link from "next/link"
 import { signIn } from "next-auth/react"
+import { login } from "@/actions/auth"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import Link from "next/link"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 function SubmitButton() {
   const { pending } = useFormStatus()
+
   return (
     <Button type="submit" className="w-full" disabled={pending}>
       {pending ? "로그인 중..." : "로그인"}
@@ -41,12 +42,28 @@ export function LoginForm() {
       <CardContent className="space-y-4">
         <form action={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">이메일</Label>
-            <Input id="email" name="email" type="email" required />
+            <Label htmlFor="identifier">이메일 또는 관리자 아이디</Label>
+            <Input
+              id="identifier"
+              name="identifier"
+              type="text"
+              autoComplete="username"
+              placeholder="name@example.com 또는 admin"
+              required
+            />
+            <p className="text-sm text-muted-foreground">
+              임시 관리자 계정은 <span className="font-medium">admin / admin1</span> 입니다.
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">비밀번호</Label>
-            <Input id="password" name="password" type="password" required />
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+            />
           </div>
           {error && <p className="text-sm text-red-500">{error}</p>}
           <SubmitButton />
@@ -57,9 +74,7 @@ export function LoginForm() {
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              또는
-            </span>
+            <span className="bg-background px-2 text-muted-foreground">또는</span>
           </div>
         </div>
 

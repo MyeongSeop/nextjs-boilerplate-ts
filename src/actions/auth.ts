@@ -35,7 +35,7 @@ export async function login(formData: FormData) {
 
   try {
     await signIn("credentials", {
-      email: parsed.data.email,
+      identifier: parsed.data.identifier,
       password: parsed.data.password,
       redirectTo: "/dashboard",
     })
@@ -43,11 +43,11 @@ export async function login(formData: FormData) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
-          return { error: "이메일 또는 비밀번호가 올바르지 않습니다." }
+          return { error: "이메일, 관리자 아이디 또는 비밀번호가 올바르지 않습니다." }
         default:
           return { error: "로그인 중 오류가 발생했습니다." }
       }
     }
-    throw error // NEXT_REDIRECT must be re-thrown
+    throw error
   }
 }

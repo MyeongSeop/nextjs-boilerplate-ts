@@ -1,8 +1,18 @@
 import { z } from "zod"
 
+const normalizeLoginIdentifier = (value: string) => value.trim().toLowerCase()
+
+const loginIdentifierSchema = z
+  .string()
+  .min(1, "로그인 정보를 입력해 주세요.")
+  .transform(normalizeLoginIdentifier)
+  .refine((value) => value === "admin" || z.email().safeParse(value).success, {
+    message: "관리자 아이디(admin) 또는 유효한 이메일을 입력해 주세요.",
+  })
+
 export const loginSchema = z.object({
-  email: z.string().email("유효한 이메일을 입력해주세요."),
-  password: z.string().min(1, "비밀번호를 입력해주세요."),
+  identifier: loginIdentifierSchema,
+  password: z.string().min(1, "비밀번호를 입력해 주세요."),
 })
 
 export const registerSchema = z
