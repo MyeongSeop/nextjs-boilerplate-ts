@@ -53,6 +53,18 @@ import { db } from "@/lib/db"
 import { loginSchema } from "@/lib/validations/auth"
 
 describe("Auth configuration", () => {
+  type ProviderConfig = {
+    providers: Array<{
+      id: string
+      options?: {
+        authorize?: (credentials: {
+          identifier: string
+          password: string
+        }) => Promise<unknown>
+      }
+    }>
+  }
+
   beforeEach(() => {
     vi.resetModules()
     vi.clearAllMocks()
@@ -63,9 +75,11 @@ describe("Auth configuration", () => {
   test("omits Google provider when OAuth env vars are missing", async () => {
     await import("@/lib/auth")
 
-    const config = mocks.nextAuth.mock.calls[0][0]
-    expect(config.providers).toHaveLength(1)
-    expect(config.providers[0]).toMatchObject({ id: "credentials" })
+    const calls = mocks.nextAuth.mock.calls as unknown as [ProviderConfig][]
+    const config = calls[0]?.[0]
+    expect(config).toBeDefined()
+    expect(config?.providers).toHaveLength(1)
+    expect(config?.providers[0]).toMatchObject({ id: "credentials" })
     expect(mocks.googleProvider).not.toHaveBeenCalled()
   })
 
@@ -75,10 +89,12 @@ describe("Auth configuration", () => {
 
     await import("@/lib/auth")
 
-    const config = mocks.nextAuth.mock.calls[0][0]
-    expect(config.providers).toHaveLength(2)
-    expect(config.providers[0]).toMatchObject({ id: "google" })
-    expect(config.providers[1]).toMatchObject({ id: "credentials" })
+    const calls = mocks.nextAuth.mock.calls as unknown as [ProviderConfig][]
+    const config = calls[0]?.[0]
+    expect(config).toBeDefined()
+    expect(config?.providers).toHaveLength(2)
+    expect(config?.providers[0]).toMatchObject({ id: "google" })
+    expect(config?.providers[1]).toMatchObject({ id: "credentials" })
     expect(mocks.googleProvider).toHaveBeenCalledWith({
       clientId: "google-client-id",
       clientSecret: "google-client-secret",
@@ -101,9 +117,12 @@ describe("Auth configuration", () => {
 
     await import("@/lib/auth")
 
-    const config = mocks.nextAuth.mock.calls.at(-1)?.[0]
-    const provider = config.providers.find((entry: { id: string }) => entry.id === "credentials")
-    const user = await provider.options.authorize({ identifier: " Admin ", password: "admin1" })
+    const calls = mocks.nextAuth.mock.calls as unknown as [ProviderConfig][]
+    const config = calls.at(-1)?.[0]
+    expect(config).toBeDefined()
+    const provider = config?.providers.find((entry) => entry.id === "credentials")
+    expect(provider).toBeDefined()
+    const user = await provider?.options?.authorize?.({ identifier: " Admin ", password: "admin1" })
 
     expect(db.user.findUnique).toHaveBeenCalledWith({
       where: { username: "admin" },

@@ -1,41 +1,72 @@
-import { describe, expect, test, vi, beforeEach } from "vitest"
+import { render, screen } from "@testing-library/react"
+import { beforeEach, describe, expect, test, vi } from "vitest"
 
-const { redirect, auth } = vi.hoisted(() => ({
-  redirect: vi.fn(),
+const mocks = vi.hoisted(() => ({
   auth: vi.fn(),
-}))
-
-vi.mock("next/navigation", () => ({
-  redirect,
+  getRecentPosts: vi.fn(),
+  PostList: vi.fn(({ posts }: { posts: Array<{ id: string; title: string; _count?: { comments?: number } }> }) => (
+    <div data-testid="post-list">
+      {posts.map((post) => (
+        <article key={post.id}>
+          <a href={`/posts/${post.id}`}>{post.title}</a>
+          <span>{`댓글 ${post._count?.comments ?? 0}`}</span>
+        </article>
+      ))}
+    </div>
+  )),
 }))
 
 vi.mock("@/lib/auth", () => ({
-  auth,
+  auth: mocks.auth,
 }))
 
-import RootPage from "@/app/page"
+vi.mock("@/lib/community/posts", () => ({
+  getRecentPosts: mocks.getRecentPosts,
+}))
 
-describe("root page redirects", () => {
+vi.mock("@/components/community/post-list", () => ({
+  PostList: mocks.PostList,
+}))
+
+import HomePage from "@/app/page"
+
+describe("root page", () => {
   beforeEach(() => {
-    redirect.mockReset()
-    auth.mockReset()
+    vi.clearAllMocks()
   })
 
-  test("redirects anonymous users to login", async () => {
-    auth.mockResolvedValue(null)
+  test("renders the community entry points and recent posts", async () => {
+    const recentPosts = [
+      {
+        id: "post-1",
+        title: "첫 글",
+        content: "본문",
+        createdAt: new Date("2026-05-28T09:00:00.000Z"),
+        board: { slug: "free", name: "자유" },
+        author: { id: "user-2", name: "작성자", username: null },
+        _count: { comments: 2 },
+      },
+    ]
 
-    await RootPage()
+    mocks.auth.mockResolvedValue({
+      user: {
+        id: "user-1",
+        name: "사용자",
+        role: "USER",
+      },
+    } as never)
+    mocks.getRecentPosts.mockResolvedValue(recentPosts as never)
 
-    expect(redirect).toHaveBeenCalledWith("/login")
-  })
+    render(await HomePage())
 
-  test("redirects authenticated users to dashboard", async () => {
-    auth.mockResolvedValue({
-      user: { id: "user-1", email: "codex-test@example.com", role: "USER" },
-    })
-
-    await RootPage()
-
-    expect(redirect).toHaveBeenCalledWith("/dashboard")
+    expect(screen.getByRole("heading", { name: "게시판 바로가기" })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "자유 게시판 보기" })).toHaveAttribute(
+      "href",
+      "/boards/free",
+    )
+    expect(screen.getByRole("link", { name: "첫 글" })).toHaveAttribute("href", "/posts/post-1")
+    expect(screen.getByText("댓글 2")).toBeInTheDocument()
+    expect(mocks.getRecentPosts).toHaveBeenCalledWith(8)
+    expect(mocks.PostList).toHaveBeenCalledWith({ posts: recentPosts }, undefined)
   })
 })
