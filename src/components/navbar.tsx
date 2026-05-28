@@ -29,27 +29,26 @@ export async function Navbar() {
           </Link>
         )}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.image ?? ""} alt={user?.name ?? ""} />
-                <AvatarFallback>
-                  {user?.name?.[0]?.toUpperCase() ?? "U"}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
+          <DropdownMenuTrigger className="relative h-8 w-8 rounded-full inline-flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user?.image ?? ""} alt={user?.name ?? ""} />
+              <AvatarFallback>
+                {user?.name?.[0]?.toUpperCase() ?? "U"}
+              </AvatarFallback>
+            </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="px-2 py-1.5 text-sm text-muted-foreground">
               {user?.email}
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem>
               <form
                 action={async () => {
                   "use server"
                   await signOut({ redirectTo: "/login" })
                 }}
+                className="w-full"
               >
                 <button type="submit" className="w-full text-left">
                   로그아웃
