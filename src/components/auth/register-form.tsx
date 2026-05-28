@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import Link from "next/link"
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -74,9 +75,9 @@ export function RegisterForm() {
         </form>
         <p className="text-center text-sm text-muted-foreground">
           이미 계정이 있으신가요?{" "}
-          <a href="/login" className="text-primary underline">
+          <Link href="/login" className="text-primary underline">
             로그인
-          </a>
+          </Link>
         </p>
       </CardContent>
     </Card>
