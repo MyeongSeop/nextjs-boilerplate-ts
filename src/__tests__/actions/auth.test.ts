@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from "vitest"
+import { beforeEach, describe, expect, test, vi } from "vitest"
 
 vi.mock("@/lib/db", () => ({
   db: {
@@ -24,6 +24,7 @@ vi.mock("next-auth", () => ({
   default: vi.fn(),
   AuthError: class AuthError extends Error {
     type: string
+
     constructor(message?: string) {
       super(message)
       this.type = ""
@@ -54,7 +55,7 @@ describe("register()", () => {
     vi.mocked(db.user.findUnique).mockResolvedValue({
       id: "1",
       email: "existing@example.com",
-    } as any)
+    } as never)
 
     const fd = new FormData()
     fd.append("name", "Alice")
@@ -71,7 +72,7 @@ describe("register()", () => {
     vi.mocked(db.user.create).mockResolvedValue({
       id: "2",
       email: "new@example.com",
-    } as any)
+    } as never)
 
     const fd = new FormData()
     fd.append("name", "Alice")
