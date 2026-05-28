@@ -10,6 +10,7 @@ export default async function AdminPage() {
       createdAt: true,
     },
     orderBy: { createdAt: "desc" },
+    take: 50,
   })
 
   return (
