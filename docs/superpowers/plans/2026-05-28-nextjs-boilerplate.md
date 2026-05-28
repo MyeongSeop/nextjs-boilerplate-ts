@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Production-ready Next.js 15 boilerplate with email/Google auth, PostgreSQL, role-based route protection, and shadcn UI.
+**Goal:** Production-ready Next.js 16 boilerplate with email/Google auth, PostgreSQL, role-based route protection, and shadcn UI.
 
 **Architecture:** App Router with Server Actions as the primary API layer. NextAuth v5 handles auth with JWT sessions. Prisma manages the PostgreSQL schema. Route protection via middleware.
 
-**Tech Stack:** Next.js 15, TypeScript, Tailwind CSS, shadcn/ui, next-auth@beta, @auth/prisma-adapter, Prisma, PostgreSQL, Zod, bcryptjs, Vitest
+**Tech Stack:** Next.js 16, TypeScript, Tailwind CSS, shadcn/ui, next-auth@beta, @auth/prisma-adapter, Prisma, PostgreSQL, Zod, bcryptjs, Vitest
 
 ---
 
@@ -88,7 +88,7 @@ vitest.config.ts                        # Vitest configuration
   ```bash
   git init
   git add .
-  git commit -m "chore: initialize Next.js 15 app with TypeScript and Tailwind"
+  git commit -m "chore: initialize Next.js 16 app with TypeScript and Tailwind"
   ```
 
 ---
