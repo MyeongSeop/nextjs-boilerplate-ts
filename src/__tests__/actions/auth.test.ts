@@ -33,6 +33,8 @@ vi.mock("next-auth", () => ({
 }))
 
 import { register } from "@/actions/auth"
+import { login } from "@/actions/auth"
+import { signIn } from "@/lib/auth"
 import { db } from "@/lib/db"
 
 describe("register()", () => {
@@ -89,5 +91,28 @@ describe("register()", () => {
         password: "hashed_password",
       }),
     })
+  })
+})
+
+describe("login()", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  test("passes identifier to signIn during login", async () => {
+    const fd = new FormData()
+    fd.append("identifier", "admin")
+    fd.append("password", "admin1")
+
+    await login(fd)
+
+    expect(signIn).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(signIn).mock.calls[0][0]).toBe("credentials")
+    expect(vi.mocked(signIn).mock.calls[0][1]).toEqual({
+      identifier: "admin",
+      password: "admin1",
+      redirectTo: "/dashboard",
+    })
+    expect(vi.mocked(signIn).mock.calls[0][1]).not.toHaveProperty("email")
   })
 })
